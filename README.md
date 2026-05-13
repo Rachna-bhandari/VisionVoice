@@ -30,8 +30,6 @@
 - [Pipeline Overview](#-pipeline-overview)
 - [Camera Controls](#-camera-controls)
 - [File Generation Summary](#-file-generation-summary)
-- [Troubleshooting](#-troubleshooting)
-- [Author](#-author)
 
 ---
 
@@ -84,7 +82,6 @@ VisionVoice/
 ├── 📄 camera.py                ← OpenCV webcam module (capture on SPACEBAR)
 ├── 📄 voice.py                 ← pyttsx3 text-to-speech helper
 ├── 📄 main.py                  ← Step 4 : Run the live demo end-to-end
-└── 📄 README.md
 ```
 
 ---
@@ -205,66 +202,6 @@ main.py              →  loads all of the above + camera.py + voice.py
 | `data/Images/captured.jpg` | `camera.py` | `main.py` |
 
 ---
-
-## 🔧 Troubleshooting
-
-<details>
-<summary><b>📷 Camera not opening?</b></summary>
-
-- Ensure the webcam is connected and not used by another app
-- Edit `camera.py` and change the camera index:
-  ```python
-  cap = cv2.VideoCapture(1)  # try 1 instead of 0
-  ```
-</details>
-
-<details>
-<summary><b>❌ File not found errors when running main.py?</b></summary>
-
-Make sure you have run all three setup steps in order:
-```bash
-python extract_features.py
-python preprocess.py
-python train.py
-```
-</details>
-
-<details>
-<summary><b>🔇 No audio output from pyttsx3?</b></summary>
-
-- **Linux:** `sudo apt install espeak`
-- **Windows:** SAPI5 works out of the box
-- **macOS:** NSSpeechSynthesizer works out of the box
-</details>
-
-<details>
-<summary><b>📉 Caption quality is poor?</b></summary>
-
-- Ensure training loss went **below 3.0**
-- Increase `EPOCHS` in `train.py` (e.g. 50)
-- Use the full **Flickr8k** dataset (8,000 images + 40,000 captions)
-</details>
-
-<details>
-<summary><b>⚠️ Keras version / custom objects error on load?</b></summary>
-
-`main.py` already includes a fallback loader:
-```python
-model = load_model('vision_voice_model.keras',
-                   custom_objects={"NotEqual": tf.math.not_equal},
-                   compile=False)
-```
-This handles most TensorFlow version conflicts automatically.
-</details>
-
----
-
-## 👨‍💻 Author
-
-**Deepesh**
-
-> Built as a PBL (Project-Based Learning) submission.  
-> Combines **Computer Vision**, **Natural Language Processing**, and **Text-to-Speech** into one end-to-end AI pipeline.
 
 ---
 
