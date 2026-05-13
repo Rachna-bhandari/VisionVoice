@@ -6,12 +6,13 @@
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=for-the-badge&logo=python&logoColor=white)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange?style=for-the-badge&logo=tensorflow&logoColor=white)
 ![OpenCV](https://img.shields.io/badge/OpenCV-4.x-green?style=for-the-badge&logo=opencv&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)
+![Keras](https://img.shields.io/badge/Keras-InceptionV3%20%2B%20LSTM-red?style=for-the-badge&logo=keras&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)
 
 <br/>
 
-> **VisionVoice** is a deep learning project that clicks a live photo using your webcam, generates a natural language caption using an InceptionV3 + LSTM model, and then speaks it out loud — all in real time.
+> **VisionVoice** is a deep learning system that clicks a live photo via webcam,  
+> generates a natural language caption using **InceptionV3 + LSTM**, and **speaks it aloud** — all in real time.
 
 <br/>
 
@@ -21,12 +22,12 @@
 
 ## 📌 Table of Contents
 
-- [Demo](#-demo)
 - [How It Works](#-how-it-works)
 - [Project Structure](#-project-structure)
 - [Tech Stack](#-tech-stack)
 - [Installation](#-installation)
 - [How to Run](#-how-to-run)
+- [Pipeline Overview](#-pipeline-overview)
 - [Camera Controls](#-camera-controls)
 - [File Generation Summary](#-file-generation-summary)
 - [Troubleshooting](#-troubleshooting)
@@ -34,61 +35,35 @@
 
 ---
 
-## 🎬 Demo
-
-```
-=============================================
-        VisionVoice PBL Project
-=============================================
-
-📷 Camera is ON!
-   ➤ Press SPACEBAR to capture the image
-   ➤ Press  Q  to quit without capturing
-
-✅ Image Captured!
-💾 Image saved to: data/Images/captured.jpg
-
-🤖 AI is analyzing the scene...
-
-📝 Generated Caption: a dog is running on the grass near a fence
-
-🖼️  Image window opened. Close it to hear the audio...
-🔊 VisionVoice is saying: a dog is running on the grass near a fence
-```
-
----
-
 ## 🧠 How It Works
 
 ```
-┌─────────────┐     ┌──────────────────┐     ┌─────────────────────┐
-│   Webcam    │────▶│  InceptionV3 CNN  │────▶│  Feature Vector     │
-│  (OpenCV)   │     │  (ImageNet)       │     │  (2048 dimensions)  │
-└─────────────┘     └──────────────────┘     └──────────┬──────────┘
+┌──────────────┐    ┌───────────────────┐    ┌──────────────────────┐
+│   Webcam     │───▶│  InceptionV3 CNN  │───▶│  Feature Vector      │
+│  (OpenCV)    │    │  (ImageNet)       │    │  (2048 dimensions)   │
+└──────────────┘    └───────────────────┘    └──────────┬───────────┘
                                                          │
                                                          ▼
-                                              ┌─────────────────────┐
-                                              │   Encoder Dense     │
-                                              │   (512 neurons)     │
-                                              └──────────┬──────────┘
+                                             ┌──────────────────────┐
+                                             │  Encoder Dense (512) │
+                                             └──────────┬───────────┘
                                                          │
-┌─────────────┐     ┌──────────────────┐                │
-│  [startseq] │────▶│  Embedding +     │────────────────┘
-│  (seed word)│     │  LSTM (512)      │         (merged)
-└─────────────┘     └──────────────────┘                │
+┌──────────────┐    ┌───────────────────┐               │
+│  [startseq]  │───▶│  Embedding (512)  │───────────────┘
+│  (seed word) │    │  + LSTM (512)     │       (merged via add)
+└──────────────┘    └───────────────────┘               │
                                                          ▼
-                                              ┌─────────────────────┐
-                                              │   Decoder Dense     │
-                                              │   → Next Word       │
-                                              └──────────┬──────────┘
+                                             ┌──────────────────────┐
+                                             │  Decoder Dense (512) │
+                                             │  → softmax → word    │
+                                             └──────────┬───────────┘
                                                          │
-                                              (repeat until 'endseq')
+                                              Repeat until 'endseq'
                                                          │
                                                          ▼
-                                              ┌─────────────────────┐
-                                              │   pyttsx3 TTS       │
-                                              │   Speak Caption     │
-                                              └─────────────────────┘
+                                             ┌──────────────────────┐
+                                             │  pyttsx3  →  Speak   │
+                                             └──────────────────────┘
 ```
 
 ---
@@ -99,16 +74,16 @@
 VisionVoice/
 │
 ├── 📂 data/
-│   ├── 📂 Images/              ← Dataset images + captured photos saved here
+│   ├── 📂 Images/              ← Dataset images + captured.jpg saved here
 │   └── 📄 captions.txt         ← Flickr8k-style captions file
 │
-├── 📄 extract_features.py      ← Step 1: Extract CNN features from all images
-├── 📄 preprocess.py            ← Step 2: Tokenize and prepare captions
-├── 📄 model_structure.py       ← Model architecture definition & test
-├── 📄 train.py                 ← Step 3: Train the LSTM caption model
-├── 📄 camera.py                ← OpenCV live webcam capture module
+├── 📄 extract_features.py      ← Step 1 : Extract InceptionV3 features
+├── 📄 preprocess.py            ← Step 2 : Tokenize captions, save mapping
+├── 📄 model_structure.py       ← Reference: print model summary anytime
+├── 📄 train.py                 ← Step 3 : Train the LSTM caption model
+├── 📄 camera.py                ← OpenCV webcam module (capture on SPACEBAR)
 ├── 📄 voice.py                 ← pyttsx3 text-to-speech helper
-├── 📄 main.py                  ← Step 4: Run the complete demo
+├── 📄 main.py                  ← Step 4 : Run the live demo end-to-end
 └── 📄 README.md
 ```
 
@@ -120,12 +95,12 @@ VisionVoice/
 |---|---|
 | **Python 3.8+** | Core language |
 | **TensorFlow / Keras** | Model training & inference |
-| **InceptionV3** | CNN image feature extractor (pretrained on ImageNet) |
+| **InceptionV3** | CNN image feature extractor (pretrained, ImageNet) |
 | **LSTM** | Sequence model for caption generation |
-| **OpenCV** | Live webcam capture |
+| **OpenCV** | Live webcam capture with countdown |
 | **pyttsx3** | Offline text-to-speech engine |
-| **Matplotlib** | Display captured image with predicted caption |
-| **tqdm** | Progress bars during feature extraction |
+| **Matplotlib** | Display captured image with generated caption |
+| **tqdm** | Progress bar during feature extraction |
 
 ---
 
@@ -137,27 +112,28 @@ git clone https://github.com/your-username/VisionVoice.git
 cd VisionVoice
 ```
 
-**2. Install dependencies**
+**2. Install all dependencies**
 ```bash
 pip install tensorflow numpy matplotlib pyttsx3 tqdm opencv-python
 ```
 
-**3. Download the Flickr8k Dataset**
-- Download from [Kaggle — Flickr8k Dataset](https://www.kaggle.com/datasets/adityajn105/flickr8k)
-- Place images inside `data/Images/`
-- Place `captions.txt` inside `data/`
+**3. Prepare the dataset**
+- Download **Flickr8k** from [Kaggle](https://www.kaggle.com/datasets/adityajn105/flickr8k)
+- Place all images inside → `data/Images/`
+- Place `captions.txt` inside → `data/`
 
 ---
 
 ## 🚀 How to Run
 
-Follow these steps **in order**:
+Run the steps **in order, once**. After that, only `main.py` is needed every time.
 
-### Step 1 — Extract Image Features
+### Step 1 — Extract Features
 ```bash
 python extract_features.py
 ```
-> Reads all images from `data/Images/` using InceptionV3 and saves feature vectors to `features.pkl`
+Reads every image in `data/Images/` through InceptionV3 and saves 2048-dim vectors.  
+**Output:** `features.pkl`
 
 ---
 
@@ -165,7 +141,8 @@ python extract_features.py
 ```bash
 python preprocess.py
 ```
-> Cleans and tokenizes captions from `captions.txt`, saves vocabulary to `tokenizer.pkl`
+Cleans captions, fits a tokenizer, computes max caption length.  
+**Output:** `tokenizer.pkl`, `mapping.pkl`, `max_length.txt`
 
 ---
 
@@ -173,9 +150,9 @@ python preprocess.py
 ```bash
 python train.py
 ```
-> Trains the 512-neuron LSTM model for 30 epochs. Saves the best model as `vision_voice_model.keras`. Automatically resumes from checkpoint if training was interrupted.
->
-> 🎯 **Target loss: below 3.0**
+Trains for up to 30 epochs with early stopping. Resumes automatically if interrupted.  
+**Output:** `vision_voice_model.keras`  
+**Target loss:** below 3.0
 
 ---
 
@@ -184,35 +161,46 @@ python train.py
 python main.py
 ```
 
-**What happens step by step:**
-
-| Step | Action |
-|------|--------|
-| 1 | Webcam opens with live preview |
-| 2 | Press `SPACEBAR` to click the photo |
-| 3 | Photo saved to `data/Images/captured.jpg` |
+| Step | What Happens |
+|:----:|---|
+| 1 | Webcam opens with live 720p preview |
+| 2 | 3-second countdown starts on SPACEBAR |
+| 3 | Photo captured & saved to `data/Images/captured.jpg` |
 | 4 | InceptionV3 extracts features from the photo |
-| 5 | LSTM generates a caption word by word |
-| 6 | Captured image displayed with caption as title |
-| 7 | Caption spoken out loud via pyttsx3 |
+| 5 | LSTM decodes caption word-by-word |
+| 6 | Image displayed with caption as title |
+| 7 | Caption spoken aloud via pyttsx3 |
 
 ---
 
 ## 📷 Camera Controls
 
 | Key | Action |
-|-----|--------|
-| `SPACEBAR` | Capture / Click the photo |
+|:---:|---|
+| `SPACEBAR` | Start 3-second countdown → capture photo |
 | `Q` | Quit camera without capturing |
 
 ---
 
-## 📊 File Generation Summary
+## 📊 Pipeline Overview
+
+```
+extract_features.py  →  features.pkl
+preprocess.py        →  tokenizer.pkl + mapping.pkl + max_length.txt
+train.py             →  vision_voice_model.keras
+main.py              →  loads all of the above + camera.py + voice.py
+```
+
+---
+
+## 🗂️ File Generation Summary
 
 | File | Created By | Used By |
-|------|-----------|---------|
+|---|---|---|
 | `features.pkl` | `extract_features.py` | `train.py`, `main.py` |
 | `tokenizer.pkl` | `preprocess.py` | `train.py`, `main.py` |
+| `mapping.pkl` | `preprocess.py` | `train.py` |
+| `max_length.txt` | `preprocess.py` | `train.py`, `main.py` |
 | `vision_voice_model.keras` | `train.py` | `main.py` |
 | `data/Images/captured.jpg` | `camera.py` | `main.py` |
 
@@ -223,34 +211,50 @@ python main.py
 <details>
 <summary><b>📷 Camera not opening?</b></summary>
 
-- Make sure your webcam is connected and not being used by another application
-- Try changing the camera index in `camera.py`:
+- Ensure the webcam is connected and not used by another app
+- Edit `camera.py` and change the camera index:
   ```python
-  cap = cv2.VideoCapture(1)  # Try 1 instead of 0
+  cap = cv2.VideoCapture(1)  # try 1 instead of 0
   ```
 </details>
 
 <details>
-<summary><b>❌ Model file not found?</b></summary>
+<summary><b>❌ File not found errors when running main.py?</b></summary>
 
-- You must complete **Step 3** (`train.py`) before running `main.py`
-- The file `vision_voice_model.keras` must exist in the root folder
+Make sure you have run all three setup steps in order:
+```bash
+python extract_features.py
+python preprocess.py
+python train.py
+```
 </details>
 
 <details>
-<summary><b>🔇 pyttsx3 no audio output?</b></summary>
+<summary><b>🔇 No audio output from pyttsx3?</b></summary>
 
-- **Linux:** Install espeak: `sudo apt install espeak`
-- **Windows:** Default SAPI5 voice works automatically
-- **macOS:** Default NSSpeechSynthesizer works automatically
+- **Linux:** `sudo apt install espeak`
+- **Windows:** SAPI5 works out of the box
+- **macOS:** NSSpeechSynthesizer works out of the box
 </details>
 
 <details>
-<summary><b>📉 Poor caption quality?</b></summary>
+<summary><b>📉 Caption quality is poor?</b></summary>
 
-- Ensure your training loss went **below 3.0**
-- Try training for more epochs in `train.py` (increase `epochs=30`)
-- Use the full Flickr8k dataset (8,000 images) for best results
+- Ensure training loss went **below 3.0**
+- Increase `EPOCHS` in `train.py` (e.g. 50)
+- Use the full **Flickr8k** dataset (8,000 images + 40,000 captions)
+</details>
+
+<details>
+<summary><b>⚠️ Keras version / custom objects error on load?</b></summary>
+
+`main.py` already includes a fallback loader:
+```python
+model = load_model('vision_voice_model.keras',
+                   custom_objects={"NotEqual": tf.math.not_equal},
+                   compile=False)
+```
+This handles most TensorFlow version conflicts automatically.
 </details>
 
 ---
@@ -259,13 +263,13 @@ python main.py
 
 **Deepesh**
 
-> Built as a PBL (Project Based Learning) submission.
-> Combines Computer Vision, Natural Language Processing, and Text-to-Speech into one end-to-end AI pipeline.
+> Built as a PBL (Project-Based Learning) submission.  
+> Combines **Computer Vision**, **Natural Language Processing**, and **Text-to-Speech** into one end-to-end AI pipeline.
 
 ---
 
 <div align="center">
 
-⭐ **If you found this project helpful, consider giving it a star!** ⭐
+⭐ **If you found this project helpful, give it a star!** ⭐
 
 </div>
