@@ -1,0 +1,7 @@
+tensorflow>=2.10
+numpy
+matplotlib
+opencv-python
+pyttsx3
+tqdm
+nltk
